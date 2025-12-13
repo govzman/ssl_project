@@ -1,11 +1,14 @@
-torch==2.2.0
-torchvision==0.17.0
+torch==2.5.1
+torchvision==0.20.1
+mmengine=0.10.5 
+mmpretrain=1.2.0
+mmcv=2.1.0
+
 torchmetrics
 numpy==1.26.4
 tqdm
 matplotlib
 pandas
-wandb
 comet_ml
 hydra-core
 
