@@ -1,10 +1,10 @@
 from typing import Any, List, Tuple
 
 import torch
-from torch import nn
 import torch.nn.functional as F
 from mmengine.dist import all_gather, get_rank
 from mmpretrain.registry import MODELS
+from torch import nn
 
 # Copyright (c) OpenMMLab. All rights reserved.
 
@@ -20,7 +20,7 @@ class GatherLayer(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx: Any, *grads: torch.Tensor) -> torch.Tensor:
-        input, = ctx.saved_tensors
+        (input,) = ctx.saved_tensors
         grad_out = torch.zeros_like(input)
         grad_out[:] = grads[get_rank()]
         return grad_out
@@ -31,11 +31,7 @@ class ContrastiveLoss(nn.Module):
         super().__init__()
 
         self.temperature = temperature
-        self.loss_module = MODELS.build(
-            dict(
-                type='CrossEntropyLoss'
-            )
-        )
+        self.loss_module = MODELS.build(dict(type="CrossEntropyLoss"))
 
     @staticmethod
     def _create_buffer(
@@ -56,10 +52,17 @@ class ContrastiveLoss(nn.Module):
         mask = 1 - torch.eye(batch_size * 2, dtype=torch.uint8).to(device)
         pos_idx = (
             torch.arange(batch_size * 2).to(device),
-            2 * torch.arange(batch_size, dtype=torch.long).unsqueeze(1).repeat(
-                1, 2).view(-1, 1).squeeze().to(device))
-        neg_mask = torch.ones((batch_size * 2, batch_size * 2 - 1),
-                              dtype=torch.uint8).to(device)
+            2
+            * torch.arange(batch_size, dtype=torch.long)
+            .unsqueeze(1)
+            .repeat(1, 2)
+            .view(-1, 1)
+            .squeeze()
+            .to(device),
+        )
+        neg_mask = torch.ones(
+            (batch_size * 2, batch_size * 2 - 1), dtype=torch.uint8
+        ).to(device)
         neg_mask[pos_idx] = 0
         return mask, pos_idx, neg_mask
 
@@ -76,12 +79,12 @@ class ContrastiveLoss(nn.Module):
         N = pos.size(0)
         logits = torch.cat((pos, neg), dim=1)
         logits /= self.temperature
-        labels = torch.zeros((N, ), dtype=torch.long).to(pos.device)
+        labels = torch.zeros((N,), dtype=torch.long).to(pos.device)
 
         loss = self.loss_module(logits, labels)
         return loss
 
-    def forward(self, embeddings: torch.Tensor, **batch):
+    def forward(self, embeddings: torch.Tensor, return_dict=True, **batch):
         """
         embeddings : tensor
             A tensor of shape (2 * B, D)
@@ -102,5 +105,26 @@ class ContrastiveLoss(nn.Module):
         negative = torch.masked_select(s, neg_mask == 1).reshape(s.size(0), -1)
 
         loss = self.loss(positive, negative)
-        losses = dict(loss=loss)
-        return losses
+        if return_dict:
+            losses = dict(loss=loss)
+            return losses
+        return loss
+
+
+class ContrastiveProbingLoss(nn.Module):
+    def __init__(self, temperature=0.5):
+        super().__init__()
+
+        self.contrastive_loss = ContrastiveLoss(temperature)
+
+    def forward(
+        self,
+        logits: torch.Tensor,
+        labels: torch.Tensor,
+        embeddings: torch.Tensor,
+        **batch
+    ):
+        return {
+            "loss": F.cross_entropy(logits, labels)
+            + self.contrastive_loss(embeddings, return_dict=False)
+        }
