@@ -12,7 +12,7 @@ optimizer:
   weight_decay: 0.01
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
-  T_max:200
+  T_max: 200
 loss_function:
   _target_: src.loss.ClassificationLoss
   type: "CrossEntropyLoss"
