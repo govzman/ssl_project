@@ -3,3 +3,4 @@ train:
   split: "train"
   instance_transforms: ${transforms.instance_transforms.train}
   two_augmentations: True
+  limit: 2
