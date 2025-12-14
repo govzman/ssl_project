@@ -1,0 +1,5 @@
+_target_: src.model.SupViT
+backbone_arch: "small"
+img_size: 96
+patch_size: 8
+num_classes: 10
