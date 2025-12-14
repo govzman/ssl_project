@@ -297,6 +297,9 @@ class SSL_MAE(BaseSelfSupervisor):
         # to recover the original order of tokens in decoder.
         latent, mask, ids_restore = self.backbone(inputs)
         pred = self.neck(latent, ids_restore)
+        if (mask == 0).all():
+            mask = None
+
         loss = self.head.loss(pred, inputs, mask)
         losses = dict(loss=loss)
         return losses
