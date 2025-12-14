@@ -18,6 +18,10 @@ def collate_fn(dataset_items: list[dict]):
     result_batch["images"] = torch.vstack(
         [elem["image"].unsqueeze(0) for elem in dataset_items]
     )
+    if "image2" in dataset_items[0]:
+        result_batch["images2"] = torch.vstack(
+            [elem["image2"].unsqueeze(0) for elem in dataset_items]
+        )
     result_batch["raw_images"] = torch.vstack(
         [elem["raw_image"].unsqueeze(0) for elem in dataset_items]
     )

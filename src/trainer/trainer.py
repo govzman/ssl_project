@@ -58,6 +58,8 @@ class Trainer(BaseTrainer):
     def log_images(self, raw_images, images, **batch):
         self.writer.add_image("raw_image", raw_images[0].detach().cpu())
         self.writer.add_image("image", images[0].detach().cpu())
+        if "images2" in batch:
+            self.writer.add_image("image2", batch["images2"][0].detach().cpu())
 
     def _log_batch(self, batch_idx, batch, mode="train"):
         """

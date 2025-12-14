@@ -17,7 +17,14 @@ class BaseDataset(Dataset):
     several datasets, the user only have to define index in a nested class.
     """
 
-    def __init__(self, data, limit=None, shuffle_index=False, instance_transforms=None):
+    def __init__(
+        self,
+        data,
+        limit=None,
+        two_augmentations=False,
+        shuffle_index=False,
+        instance_transforms=None,
+    ):
         """
         Args:
             index (list[dict]): list, containing dict for each element of
@@ -25,6 +32,7 @@ class BaseDataset(Dataset):
                 such as label and object path.
             limit (int | None): if not None, limit the total number of elements
                 in the dataset to 'limit' elements.
+            two_augmentations (bool): if True - add second augmented image to batch.
             shuffle_index (bool): if True, shuffle the index. Uses python
                 random package with seed 42.
             instance_transforms (dict[Callable] | None): transforms that
@@ -35,6 +43,7 @@ class BaseDataset(Dataset):
         self._data: List[tuple] = data
         self.limit = limit if limit else len(data)
         self.indexes = torch.randint(low=0, high=len(data), size=(self.limit,))
+        self.two_augmentations = two_augmentations
         self.instance_transforms = instance_transforms
 
     def __getitem__(self, ind):
@@ -60,6 +69,8 @@ class BaseDataset(Dataset):
             "raw_image": data_tuple[0],
             "label": data_tuple[1],
         }
+        if self.two_augmentations:
+            instance_data["image2"] = data_tuple[0]
         instance_data = self.preprocess_data(instance_data)
         return instance_data
 
