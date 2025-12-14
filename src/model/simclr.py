@@ -27,7 +27,7 @@ class SimCLR(nn.Module):
             )
         )
 
-    def forward(self, x: torch.Tensor, **batch):
+    def forward(self, images: torch.Tensor, **batch):
         """
         x : tensor
             tensor of shape (B, C, H, W)
