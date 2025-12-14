@@ -55,6 +55,10 @@ class Trainer(BaseTrainer):
             metrics.update(met.name, met(**batch))
         return batch
 
+    def log_images(self, raw_images, images, **batch):
+        self.writer.add_image("raw_image", raw_images[0].detach().cpu())
+        self.writer.add_image("image", images[0].detach().cpu())
+
     def _log_batch(self, batch_idx, batch, mode="train"):
         """
         Log data from batch. Calls self.writer.add_* to log data
@@ -73,7 +77,7 @@ class Trainer(BaseTrainer):
         # logging scheme might be different for different partitions
         if mode == "train":  # the method is called only every self.log_step steps
             # Log Stuff
-            pass
+            self.log_images(**batch)
         else:
             # Log Stuff
-            pass
+            self.log_images(**batch)

@@ -1,6 +1,6 @@
 torch==2.5.1
 torchvision==0.20.1
-mmengine==0.10.5 
+mmengine==0.10.5
 mmpretrain==1.2.0
 mmcv==2.1.0
 
