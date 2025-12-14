@@ -1,0 +1,4 @@
+_target_: src.model.SimCLR
+backbone_arch: "small"
+img_size: 224
+patch_size: 16
