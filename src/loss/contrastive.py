@@ -81,13 +81,13 @@ class ContrastiveLoss(nn.Module):
         loss = self.loss_module(logits, labels)
         return loss
 
-    def forward(self, z: torch.Tensor):
+    def forward(self, embeddings: torch.Tensor, **batch):
         """
-        z : tensor
+        embeddings : tensor
             A tensor of shape (2 * B, D)
         """
 
-        z = z / (torch.norm(z, p=2, dim=1, keepdim=True) + 1e-10)
+        z = embeddings / (torch.norm(embeddings, p=2, dim=1, keepdim=True) + 1e-10)
         z = torch.cat(GatherLayer.apply(z), dim=0)  # (2N)xd
         assert z.size(0) % 2 == 0
         N = z.size(0) // 2

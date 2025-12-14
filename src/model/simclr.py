@@ -4,7 +4,7 @@ from mmpretrain.registry import MODELS
     
 
 class SimCLR(nn.Module):
-    def __init__(self, backbone_arch='small', img_size=224, patch_size=16):
+    def __init__(self, backbone_arch='small', img_size=96, patch_size=8):
         super().__init__()
         self.backbone = MODELS.build(
             dict(
@@ -19,20 +19,24 @@ class SimCLR(nn.Module):
         self.head = MODELS.build(
             dict(
                 type="NonLinearNeck",
-                in_channels=2048,
-                hid_channels=2048,
+                in_channels=768,
+                hid_channels=768,
                 out_channels=128,
                 num_layers=2,
-                with_avg_pool=True,
+                with_avg_pool=False,
             )
         )
 
-    def forward(self, images: torch.Tensor, **batch):
+    def forward(self, images: torch.Tensor, images2: torch.Tensor, **batch):
         """
-        x : tensor
+        images : tensor
             tensor of shape (B, C, H, W)
         """
+        
+        x = torch.cat([images, images2], dim=0)
         representations = self.backbone(x) # tuple with tensor (B, C)
         z = self.head(representations)[0] # tensor (B, out_channels)
-        return representations[0]
+        return dict(
+            embeddings=z
+        )
         

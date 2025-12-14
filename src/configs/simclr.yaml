@@ -31,6 +31,7 @@ trainer:
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
   seed: 1
+<<<<<<< HEAD
   amp: True
 datasets:
   train:
@@ -39,3 +40,11 @@ datasets:
 # metrics:
 #   train: []
 #   inference: []
+=======
+datasets:
+  train:
+    two_augmentations: true
+metrics:
+  train: []
+  inference: []
+>>>>>>> fc5d001 (Debug model and loss, everything works fine)
