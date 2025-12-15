@@ -221,7 +221,7 @@ class BaseTrainer:
             self.train_metrics.update("grad_norm", self._get_grad_norm())
 
             # log current results
-            if batch_idx % self.log_step == 0:
+            if (batch_idx + 1) % self.log_step == 0:
                 self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
                 self.logger.debug(
                     "Train Epoch: {} {} Loss: {:.6f}".format(
