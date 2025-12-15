@@ -557,7 +557,10 @@ class BaseTrainer:
             print(f"Loading model weights from: {pretrained_path} ...")
         checkpoint = torch.load(pretrained_path, self.device)
 
-        if checkpoint.get("state_dict") is not None:
-            self.model.load_state_dict(checkpoint["state_dict"])
+        if checkpoint.get("state_dict_backbone") is not None:
+            self.model.backbone.load_state_dict(checkpoint["state_dict_backbone"])
         else:
             self.model.load_state_dict(checkpoint)
+
+        if checkpoint.get("state_dict_head") is not None:
+            self.model.head.load_state_dict(checkpoint["state_dict_head"])
