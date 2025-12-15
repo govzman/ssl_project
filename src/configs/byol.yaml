@@ -1,5 +1,5 @@
 defaults:
-  - model: byol
+  - model: SSL_BYOL
   - writer: cometml
   - metrics: example
   - datasets: stl10_onebatch
