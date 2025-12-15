@@ -28,14 +28,16 @@ class SupViT(nn.Module):
             )
         )
 
-        if embed_dim is None:
-            embed_dim = self.backbone.embed_dims
+        # if embed_dim is None:
+        embed_dim = self.backbone.embed_dims
         
         self.cls_head = nn.Linear(embed_dim, num_classes)
 
 
     def forward(self, images, **batch):
-        feats = self.backbone(images)[0]   # (B, C)
-        logits = self.head(feats)
+        feats = self.backbone(images)   # (B, C)
+        if isinstance(feats, (tuple, list)):
+            feats = feats[0]
+        logits = self.cls_head(feats)
         return dict(logits=logits)
   

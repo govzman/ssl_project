@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmengine.registry import MODELS
+from mmpretrain.registry import MODELS
 
 
 class ClassificationLoss(nn.Module):
@@ -12,4 +12,7 @@ class ClassificationLoss(nn.Module):
         self.loss_module = MODELS.build(dict(type=type))
 
     def forward(self, logits, labels, **batch):
-        return self.loss_module(logits, labels)
+        loss = self.loss_module(logits, labels)
+        return {
+            "loss" : loss
+        }
