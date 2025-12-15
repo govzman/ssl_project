@@ -1,0 +1,7 @@
+_target_: src.model.SSLModel
+backbone_arch: small
+img_size: 96
+patch_size: 8
+in_features: 768
+out_features: 10
+freeze_backbone: true
