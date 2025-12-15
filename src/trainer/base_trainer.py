@@ -72,6 +72,10 @@ class BaseTrainer:
         self.lr_scheduler = lr_scheduler
         self.batch_transforms = batch_transforms
 
+        self.amp = config.trainer.get("amp", False)
+        if self.amp:
+            self.scaler = torch.cuda.amp.GradScaler()
+
         # define dataloaders
         self.train_dataloader = dataloaders["train"]
         if epoch_len is None:
