@@ -3,14 +3,14 @@ from typing import Dict, List, Optional, Union
 
 import torch
 import torch.nn as nn
+from mmengine.logging import MessageHub
 from mmpretrain.models.selfsup.base import BaseSelfSupervisor
 from mmpretrain.models.utils import CosineEMA
 from mmpretrain.registry import MODELS
 from mmpretrain.structures import DataSample
 
 
-@MODELS.register_module()
-class BYOL(BaseSelfSupervisor):
+class SSL_BYOL(nn.Module):
     """BYOL.
 
     Implementation of `Bootstrap Your Own Latent: A New Approach to
@@ -35,7 +35,13 @@ class BYOL(BaseSelfSupervisor):
     """
 
     def __init__(
-        self, backbone_arch="small", img_size=96, patch_size=8, base_momentum=1
+        self,
+        backbone_arch="small",
+        img_size=96,
+        patch_size=8,
+        base_momentum=0.996,
+        max_epochs=100,
+        steps_per_epoch=1000,
     ) -> None:
         super().__init__()
 
@@ -70,13 +76,16 @@ class BYOL(BaseSelfSupervisor):
                 out_channels=256,
                 num_layers=2,
                 with_avg_pool=False,
-                with_bias=False,
-                with_last_bn=False,
-                with_last_bias=False,
-                with_last_relu=False,
+                # with_bias=False,
+                # with_last_bn=False,
+                # with_last_bias=False,
             )
         )
         # momentum model
+        message_hub = MessageHub.get_current_instance()
+        max_iters = max_epochs * steps_per_epoch
+        message_hub.update_info("max_iters", max_iters)
+
         self.target_backbone = CosineEMA(self.backbone, momentum=base_momentum)
         self.target_projector = CosineEMA(self.projector, momentum=base_momentum)
 
@@ -91,11 +100,11 @@ class BYOL(BaseSelfSupervisor):
         # Online network forward pass
         online_rep1 = self.backbone(images)  # (B, 768)
         online_proj1 = self.projector(online_rep1)[0]  # (B, 256)
-        online_pred1 = self.predictor(online_proj1)[0]  # (B, 256)
+        online_pred1 = self.predictor((online_proj1,))[0]  # (B, 256)
 
         online_rep2 = self.backbone(images2)
         online_proj2 = self.projector(online_rep2)[0]
-        online_pred2 = self.predictor(online_proj2)[0]
+        online_pred2 = self.predictor((online_proj2,))[0]
 
         # Target network forward pass (no gradients)
         with torch.no_grad():
