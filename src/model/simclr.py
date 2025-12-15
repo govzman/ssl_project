@@ -1,6 +1,9 @@
 import torch
+from mmpretrain.models import NonLinearNeck, VisionTransformer
 from mmpretrain.registry import MODELS
 from torch import nn
+
+from src.model.mae_vit import build_2d_sincos_position_embedding
 
 
 class SimCLR(nn.Module):
@@ -22,6 +25,8 @@ class SimCLR(nn.Module):
                 out_type="cls_token",
             )
         )
+        self.backbone.init_weights()
+        self.init_pos_embed()
         self.head = MODELS.build(
             dict(
                 type="NonLinearNeck",
@@ -33,6 +38,20 @@ class SimCLR(nn.Module):
             )
         )
         self.probe = nn.Linear(emb_dim, num_classes)
+
+    def init_pos_embed(self):
+        self.backbone.pos_embed.requires_grad = False
+        num_patches = self.backbone.pos_embed.shape[1] - self.backbone.num_extra_tokens
+        pos_embed = build_2d_sincos_position_embedding(
+            int(num_patches**0.5), self.backbone.pos_embed.shape[-1], cls_token=True
+        )
+
+        self.backbone.pos_embed.data.copy_(pos_embed.float())
+
+        w = self.backbone.patch_embed.projection.weight.data
+        torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
+
+        torch.nn.init.normal_(self.backbone.cls_token, std=0.02)
 
     def forward(self, images: torch.Tensor, images2: torch.Tensor, **batch):
         """
