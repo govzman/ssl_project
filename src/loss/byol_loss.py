@@ -24,7 +24,7 @@ class BYOLLoss(nn.Module):
         target = F.normalize(target, dim=1, p=2)
 
         # Compute cosine similarity and convert to loss (negative cosine similarity)
-        loss = -(pred * target).sum(dim=1).mean()
+        loss = 2 - 2 * (pred * target).sum(dim=1).mean()
         return loss
 
     def forward(
