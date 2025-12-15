@@ -4,3 +4,9 @@ train:
   instance_transforms: ${transforms.instance_transforms.train}
   two_augmentations: True
   limit: 2
+test:
+  _target_: src.datasets.STL10
+  split: "test"
+  instance_transforms: ${transforms.instance_transforms.inference}
+  two_augmentations: True
+  limit: 2
