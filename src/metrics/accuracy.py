@@ -3,7 +3,7 @@ import torch
 from src.metrics.base_metric import BaseMetric
 
 
-class ExampleMetric(BaseMetric):
+class LogitsMetric(BaseMetric):
     def __init__(self, metric, device, *args, **kwargs):
         """
         Example of a nested metric class. Applies metric function
