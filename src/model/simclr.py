@@ -5,7 +5,12 @@ from torch import nn
 
 class SimCLR(nn.Module):
     def __init__(
-        self, backbone_arch="small", img_size=96, patch_size=8, num_classes=10
+        self,
+        backbone_arch="small",
+        img_size=96,
+        patch_size=8,
+        num_classes=10,
+        emb_dim=128,
     ):
         super().__init__()
         self.backbone = MODELS.build(
@@ -17,18 +22,17 @@ class SimCLR(nn.Module):
                 out_type="cls_token",
             )
         )
-        out_channels = 512
         self.head = MODELS.build(
             dict(
                 type="NonLinearNeck",
                 in_channels=768,
                 hid_channels=768,
-                out_channels=out_channels,
+                out_channels=emb_dim,
                 num_layers=2,
                 with_avg_pool=False,
             )
         )
-        self.probe = nn.Linear(out_channels, num_classes)
+        self.probe = nn.Linear(emb_dim, num_classes)
 
     def forward(self, images: torch.Tensor, images2: torch.Tensor, **batch):
         """
