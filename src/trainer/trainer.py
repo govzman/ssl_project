@@ -1,3 +1,5 @@
+import torch
+
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
 
@@ -34,19 +36,37 @@ class Trainer(BaseTrainer):
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
 
-        outputs = self.model(**batch)
-        batch.update(outputs)
+        if self.amp:
+            with torch.autocast("cuda", dtype=torch.float16):
+                outputs = self.model(**batch)
+                batch.update(outputs)
 
-        all_losses = self.criterion(**batch)
-        batch.update(all_losses)
+                all_losses = self.criterion(**batch)
+                batch.update(all_losses)
 
-        if self.is_train:
-            batch["loss"].backward()  # sum of all losses is always called loss
-            self._clip_grad_norm()
-            self.optimizer.step()
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+            if self.is_train:
+                self.scaler.scale(
+                    batch["loss"]
+                ).backward()  # sum of all losses is always called loss
+                self.scaler.unscale_(self.optimizer)
+                self._clip_grad_norm()  # clip gradients
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
+        else:
+            outputs = self.model(**batch)
+            batch.update(outputs)
 
+            all_losses = self.criterion(**batch)
+            batch.update(all_losses)
+
+            if self.is_train:
+                batch["loss"].backward()  # sum of all losses is always called loss
+                self._clip_grad_norm()  # clip gradients
+                self.optimizer.step()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:
             metrics.update(loss_name, batch[loss_name].item())

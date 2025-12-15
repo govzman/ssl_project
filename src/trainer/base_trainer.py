@@ -72,6 +72,10 @@ class BaseTrainer:
         self.lr_scheduler = lr_scheduler
         self.batch_transforms = batch_transforms
 
+        self.amp = config.trainer.get("amp", False)
+        if self.amp:
+            self.scaler = torch.cuda.amp.GradScaler()
+
         # define dataloaders
         self.train_dataloader = dataloaders["train"]
         if epoch_len is None:
@@ -131,6 +135,7 @@ class BaseTrainer:
 
         # define checkpoint dir and init everything if required
 
+        self.using_head = config.trainer.get("using_head", False)
         self.checkpoint_dir = (
             ROOT_PATH / config.trainer.save_dir / config.writer.run_name
         )
@@ -466,12 +471,15 @@ class BaseTrainer:
         state = {
             "arch": arch,
             "epoch": epoch,
-            "state_dict": self.model.state_dict(),
+            "state_dict_backbone": self.model.backbone.state_dict(),
             "optimizer": self.optimizer.state_dict(),
             "lr_scheduler": self.lr_scheduler.state_dict(),
             "monitor_best": self.mnt_best,
             "config": self.config,
         }
+        if self.using_head:
+            state["state_dict_head"] = self.model.head.state_dict()
+
         filename = str(self.checkpoint_dir / f"checkpoint-epoch{epoch}.pth")
         if not (only_best and save_best):
             torch.save(state, filename)
@@ -509,7 +517,9 @@ class BaseTrainer:
                 "Warning: Architecture configuration given in the config file is different from that "
                 "of the checkpoint. This may yield an exception when state_dict is loaded."
             )
-        self.model.load_state_dict(checkpoint["state_dict"])
+        self.model.backbone.load_state_dict(checkpoint["state_dict_backbone"])
+        if self.using_head and "state_dict_head" in checkpoint:
+            self.model.head.load_state_dict(checkpoint["state_dict_head"])
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
         if (
