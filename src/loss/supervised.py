@@ -16,3 +16,4 @@ class ClassificationLoss(nn.Module):
         return {
             "loss" : loss
         }
+        
