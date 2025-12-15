@@ -34,12 +34,18 @@ class SSLModel(nn.Module):
                 out_type="cls_token",
             )
         )
+        self.freeze_backbone = freeze_backbone
         if freeze_backbone:
             self.backbone.eval()
             for param in self.backbone.parameters():
                 param.requires_grad = False
 
         self.head = nn.Linear(in_features=in_features, out_features=out_features)
+
+    def train(self, mode=True):
+        super().train(mode=mode)
+        if self.freeze_backbone:
+            self.backbone.eval()
 
     def forward(self, images, **batch):
         """
@@ -50,7 +56,7 @@ class SSLModel(nn.Module):
         Returns:
             output (dict): output dict containing logits.
         """
-        return {"logits": self.head(self.backbone(images)["logits"])}
+        return {"logits": self.head(self.backbone(images)[0])}
 
     def __str__(self):
         """

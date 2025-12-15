@@ -1,5 +1,5 @@
 defaults:
-  - instance_transforms: augs
+  - instance_transforms: no_augs
   - _self_
 
 batch_transforms:
