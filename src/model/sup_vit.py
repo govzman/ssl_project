@@ -107,7 +107,7 @@ class SupViT(nn.Module):
 
 
     def forward(self, images, **batch):
-        feats = self.backbone(images)   # (B, C)
+        feats = self.backbone(images)
         if isinstance(feats, (tuple, list)):
             feats = feats[0]
         logits = self.cls_head(feats)

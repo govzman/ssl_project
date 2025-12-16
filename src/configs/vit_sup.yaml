@@ -10,9 +10,12 @@ optimizer:
   _target_: torch.optim.AdamW
   lr: 1e-3
   weight_decay: 0.01
-lr_scheduler:
-  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
-  T_max: 200
+lr_scheduler: 
+  _target_: torch.optim.lr_scheduler.OneCycleLR 
+  max_lr: ${optimizer.lr} 
+  epochs: ${trainer.n_epochs} 
+  steps_per_epoch: ${trainer.epoch_len} 
+  pct_start: 0.05
 loss_function:
   _target_: src.loss.ClassificationLoss
   type: "CrossEntropyLoss"
