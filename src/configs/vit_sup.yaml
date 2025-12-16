@@ -4,7 +4,7 @@ defaults:
   - metrics: example
   - datasets: stl10_onebatch
   - dataloader: example
-  - transforms: stl10
+  - transforms: stl10_probe_augs
   - _self_
 optimizer:
   _target_: torch.optim.AdamW
@@ -21,7 +21,7 @@ loss_function:
   type: "CrossEntropyLoss"
 trainer:
   log_step: 50
-  n_epochs: 100
+  n_epochs: 20
   epoch_len: 500
   device_tensors: ["images", "labels"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
