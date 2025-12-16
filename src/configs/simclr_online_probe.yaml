@@ -39,6 +39,5 @@ trainer:
 datasets:
   train:
     two_augmentations: true
-    # limit: ${dataloader.batch_size}
 dataloader:
   batch_size: 64

@@ -28,6 +28,6 @@ trainer:
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
-  from_pretrained: "saved/SimCLR bs64 no_blur AdamW lr 1e-5 weight_decay 1e-5 epoch_len 500 num_epochs 20/checkpoint-epoch9.pth"
+  from_pretrained: "PATH/TO/CHECKPOINT"
   using_head: true
   seed: 1
