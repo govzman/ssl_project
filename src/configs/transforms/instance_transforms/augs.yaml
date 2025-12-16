@@ -19,7 +19,7 @@ train:
             saturation: [0.8, 1.2]
             hue: [-0.1, 0.1]
       - _target_: torchvision.transforms.v2.RandomApply
-        p: 0.5
+        p: 0.1
         transforms:
           - _target_: torchvision.transforms.v2.GaussianBlur
             kernel_size: 5
