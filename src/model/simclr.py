@@ -14,6 +14,7 @@ class SimCLR(nn.Module):
         patch_size=8,
         num_classes=10,
         emb_dim=128,
+        with_probe=False,
     ):
         super().__init__()
         self.backbone = MODELS.build(
@@ -37,7 +38,9 @@ class SimCLR(nn.Module):
                 with_avg_pool=False,
             )
         )
-        self.probe = nn.Linear(emb_dim, num_classes)
+        self.with_probe = with_probe
+        if self.with_probe:
+            self.probe = nn.Linear(emb_dim, num_classes)
 
     def init_pos_embed(self):
         self.backbone.pos_embed.requires_grad = False
@@ -59,10 +62,11 @@ class SimCLR(nn.Module):
             tensor of shape (B, C, H, W)
         """
 
-        B, _, _, _ = images.shape
-
-        x = torch.cat([images, images2], dim=0)
-        representations = self.backbone(x)  # tuple with tensor (B, C)
-        embeddings = self.head(representations)[0]  # tensor (B, out_channels)
-        logits = self.probe(embeddings[:B].detach())
-        return dict(embeddings=embeddings, logits=logits)
+        representations_i = self.backbone(images)
+        representations_j = self.backbone(images)  # tuple with tensor (B, C)
+        embeddings_i = self.head(representations_i)[0]
+        embeddings_j = self.head(representations_j)[0]  # tensor (B, out_channels)
+        outputs = dict(embeddings_i=embeddings_i, embeddings_j=embeddings_j)
+        if self.with_probe:
+            outputs["logits"] = self.probe(embeddings_i.detach())
+        return outputs
