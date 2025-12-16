@@ -3,4 +3,4 @@ backbone_arch: "small"
 img_size: 96
 patch_size: 8
 num_classes: 10
-emb_dim: 128
+emb_dim: 512
