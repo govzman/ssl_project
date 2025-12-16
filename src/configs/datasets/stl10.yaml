@@ -2,9 +2,9 @@ train:
   _target_: src.datasets.STL10
   split: "train"
   instance_transforms: ${transforms.instance_transforms.train}
-  two_augmentations: True
+  two_augmentations: False
 test:
   _target_: src.datasets.STL10
   split: "test"
   instance_transforms: ${transforms.instance_transforms.inference}
-  two_augmentations: True
+  two_augmentations: False
