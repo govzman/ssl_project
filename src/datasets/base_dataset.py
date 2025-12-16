@@ -96,7 +96,7 @@ class BaseDataset(Dataset):
         """
         if self.instance_transforms is not None:
             for transform_name in self.instance_transforms.keys():
-                if transform_name in instance_data:
+                if transform_name in instance_data: 
                     instance_data[transform_name] = self.instance_transforms[
                         transform_name
                     ](instance_data[transform_name])
