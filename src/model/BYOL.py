@@ -99,7 +99,7 @@ class SSL_BYOL(nn.Module):
         steps_per_epoch=1000,
     ) -> None:
         super().__init__()
-        norm_cfg = dict(type="BN2d")
+        norm_cfg = dict(type="BN1d")
         # Online
         self.backbone = MODELS.build(
             dict(
