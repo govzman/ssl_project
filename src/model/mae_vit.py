@@ -5,9 +5,11 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch
 import torch.nn as nn
+from omegaconf import DictConfig, OmegaConf
 
 from mmpretrain.models.backbones.vision_transformer import TransformerEncoderLayer
 from mmcv.cnn import build_norm_layer
+from mmengine import ConfigDict
 from mmengine.model import BaseModule
 from mmengine.utils import digit_version
 from mmpretrain.models import  VisionTransformer
@@ -277,32 +279,63 @@ class SSL_MAE(BaseSelfSupervisor):
     Implementation of `Masked Autoencoders Are Scalable Vision Learners
     <https://arxiv.org/abs/2111.06377>`_.
     """
+    def __init__(self, backbone, neck=None, head=None, **kwargs):
+
+        def to_cfg(x):
+                if isinstance(x, DictConfig):
+                    x = OmegaConf.to_container(x, resolve=True)
+                    return ConfigDict(x)
+                if isinstance(x, dict):
+                    return ConfigDict({k: to_cfg(v) for k, v in x.items()})
+                if isinstance(x, (list, tuple)):
+                    return type(x)(to_cfg(v) for v in x)
+                return x
+
+        backbone = to_cfg(backbone)
+        neck = to_cfg(neck)
+        head = to_cfg(head)
+
+        # важно: передаём дальше именно именованные аргументы,
+        # как ожидает BaseSelfSupervisor
+        super().__init__(backbone=backbone, neck=neck, head=head, **kwargs)
+        self.backbone.init_weights()
+        self.neck.init_weights()
+        self.head.init_weights()
 
     def extract_feat(self, inputs: torch.Tensor):
         return self.backbone(inputs, mask=None)
 
-    def loss(self, inputs: torch.Tensor, data_samples: List[DataSample],
+    def reconstruct(self, inputs: torch.Tensor,
              **kwargs) -> Dict[str, torch.Tensor]:
-        """The forward function in training.
-
-        Args:
-            inputs (torch.Tensor): The input images.
-            data_samples (List[DataSample]): All elements required
-                during the forward function.
-
-        Returns:
-            Dict[str, torch.Tensor]: A dictionary of loss components.
-        """
         # ids_restore: the same as that in original repo, which is used
         # to recover the original order of tokens in decoder.
         latent, mask, ids_restore = self.backbone(inputs)
+        
         pred = self.neck(latent, ids_restore)
+        inputs = self.head.construct_target(inputs)
         if (mask == 0).all():
             mask = None
+        
 
-        loss = self.head.loss(pred, inputs, mask)
-        losses = dict(loss=loss)
-        return losses
+        return {"pred": pred, "target": inputs, "mask": mask}
+    
+    def forward(self,
+            images, images2, raw_images, labels, mode="train"):
+        if mode == "train":
+            return self.reconstruct(raw_images)
+        else:
+            return self.extract_feat(raw_images)
+
+    def loss(self, pred: torch.Tensor, target: torch.Tensor,
+             mask: torch.Tensor) -> torch.Tensor:
+        """Generate loss.
+
+        Args:
+            pred (torch.Tensor): The reconstructed image.
+            target (torch.Tensor): The target image.
+            mask (torch.Tensor): The mask of the target image.
+        """
+        return None
 
 
 @MODELS.register_module()

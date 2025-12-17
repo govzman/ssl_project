@@ -1,0 +1,42 @@
+_target_: src.model.mae_vit.SSL_MAE
+backbone:
+  type: SSL_MAEViT
+  arch: small
+  img_size: 96
+  patch_size: 8
+  mask_ratio: 0.75
+  init_cfg:
+    - type: Xavier
+      layer: Linear
+      distribution: uniform
+    - type: Constant
+      layer: LayerNorm
+      val: 1.0
+      bias: 0.0
+neck:
+  type: SSL_MAEPretrainDecoder
+  num_patches: 144  # (96/8)^2 = 144
+  patch_size: 8
+  in_chans: 3
+  embed_dim: 768  # Must match backbone embed_dims
+  decoder_embed_dim: 512
+  decoder_depth: 8
+  decoder_num_heads: 16  # Should divide decoder_embed_dim
+  mlp_ratio: 4
+  init_cfg:
+    - type: Xavier
+      layer: Linear
+      distribution: uniform
+    - type: Constant
+      layer: LayerNorm
+      val: 1.0
+      bias: 0.0
+head:
+  type: SSL_MAEPretrainHead
+  loss:
+    type: PixelReconstructionLoss
+    criterion: L2
+  norm_pix: false
+  patch_size: 8
+  in_channels: 3
+
