@@ -15,14 +15,14 @@ lr_scheduler:
   max_lr: ${optimizer.lr}
   epochs: ${trainer.n_epochs}
   steps_per_epoch: ${trainer.epoch_len}
-  pct_start: 0.15
+  pct_start: 0.1
 loss_function:
   _target_: src.loss.ContrastiveMaskedProbingLoss
   temperature: 0.5
   lambda_mim: 0.25
 trainer:
-  log_step: 50
-  n_epochs: 100
+  log_step: ${trainer.epoch_len}
+  n_epochs: 10
   epoch_len: ${devide:${datasets.train.limit},${dataloader.batch_size}}
   device_tensors: ["images", "images2", "labels"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
@@ -50,4 +50,4 @@ model:
 
 writer:
   run_name: "CMAE_pretrain_onlineprobe_lambda0.25_lr1e-4_wd1e-4"
-  loss_names: ["cont_mim_loss", "cls_loss"]
+  loss_names: ["contr_mim_loss", "cls_loss"]
