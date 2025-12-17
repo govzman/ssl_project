@@ -1,7 +1,7 @@
 _target_: src.logger.CometMLWriter
 project_name: "ssl_project"
 workspace: "vekshinkir"
-run_name: "testing"
+run_name: "ByOL_lr3e-4gamma09"
 mode: "online"
 loss_names: ["loss"] # which losses to log (useful for multi-loss tasks, s.a. GANs)
 log_checkpoints: False # set to True if you want to log save_dir with checkpoints to W&B
