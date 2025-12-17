@@ -18,10 +18,10 @@ lr_scheduler:
   pct_start: 0.01
 loss_function:
   _target_: src.loss.ContrastiveByolLoss
-  alpha: 0.5 # the weight of contrastive loss
+  alpha: 0.25 # the weight of contrastive loss
 trainer:
-  log_step: 100
-  n_epochs: 100
+  log_step: 30
+  n_epochs: 50
   epoch_len: ${devide:${datasets.train.limit},${dataloader.batch_size}}
   device_tensors: ["images", "images2", "labels"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
