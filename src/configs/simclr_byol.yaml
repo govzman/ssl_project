@@ -41,9 +41,9 @@ datasets:
   test:
     split: "train"
 dataloader:
-  batch_size: 64
+  batch_size: 1024
 metrics:
   train: []
   inference: []
 writer:
-  run_name: "SimCLR+ByOL bs ${dataloader.batch_size}"
+  run_name: "SimCLR+ByOL bs ${dataloader.batch_size} alpha ${loss_function.alpha}"
