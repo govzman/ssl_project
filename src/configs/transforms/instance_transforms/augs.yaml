@@ -27,6 +27,9 @@ train:
         degrees: 7
       - _target_: torchvision.transforms.v2.RandomInvert
         p: 0.1
+      - _target_: torchvision.transforms.v2.Normalize
+        mean: [0.4467, 0.4398, 0.4066]
+        std: [0.2242, 0.2215, 0.2239]
   image2: ${transforms.instance_transforms.train.image}
   raw_image: ${transforms.instance_transforms.inference.raw_image}
 
@@ -35,5 +38,8 @@ inference:
     _target_: torchvision.transforms.v2.Compose
     transforms:
       - _target_: torchvision.transforms.v2.ToTensor
+      - _target_: torchvision.transforms.v2.Normalize
+        mean: [0.4467, 0.4398, 0.4066]
+        std: [0.2242, 0.2215, 0.2239]
   image2: ${transforms.instance_transforms.inference.image}
   raw_image: ${transforms.instance_transforms.inference.image}
