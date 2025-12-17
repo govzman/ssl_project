@@ -63,7 +63,7 @@ class SimCLR(nn.Module):
         """
 
         representations_i = self.backbone(images)
-        representations_j = self.backbone(images)  # tuple with tensor (B, C)
+        representations_j = self.backbone(images2)  # tuple with tensor (B, C)
         embeddings_i = self.head(representations_i)[0]
         embeddings_j = self.head(representations_j)[0]  # tensor (B, out_channels)
         outputs = dict(embeddings_i=embeddings_i, embeddings_j=embeddings_j)

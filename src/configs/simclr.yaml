@@ -8,7 +8,7 @@ defaults:
   - _self_
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 1e-5
+  lr: 1e-4
   weight_decay: 1e-5
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
@@ -44,3 +44,5 @@ dataloader:
 metrics:
   train: []
   inference: []
+writer:
+  run_name: "SimCLR bs64 AdamW lr 1e-4 weight_decay 1e-5 num_epochs 5"
