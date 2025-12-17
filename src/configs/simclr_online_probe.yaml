@@ -21,7 +21,7 @@ lr_scheduler:
 #   gamma: 0.9
 #   step_size: ${trainer.epoch_len}
 loss_function:
-  _target_: src.loss.ContrastiveLoss
+  _target_: src.loss.ContrastiveProbingLoss
 trainer:
   log_step: 50
   n_epochs: 10
