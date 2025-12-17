@@ -21,7 +21,7 @@ neck:
   embed_dim: 768  # Must match backbone embed_dims
   decoder_embed_dim: 512
   decoder_depth: 8
-  decoder_num_heads: 16  # Should divide decoder_embed_dim
+  decoder_num_heads: 8  # Should divide decoder_embed_dim
   mlp_ratio: 4
   init_cfg:
     - type: Xavier
