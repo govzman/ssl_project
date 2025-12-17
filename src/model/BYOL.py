@@ -94,9 +94,9 @@ class SSL_BYOL(nn.Module):
         backbone_arch="small",
         img_size=96,
         patch_size=8,
-        base_momentum=0.996,
+        base_momentum=0.004,
         max_epochs=100,
-        steps_per_epoch=1000,
+        steps_per_epoch=98,
     ) -> None:
         super().__init__()
         norm_cfg = dict(type="BN1d")

@@ -42,3 +42,6 @@ dataloader:
 metrics:
   train: []
   inference: []
+model:
+  max_epochs: 100
+  steps_per_epoch: 98
