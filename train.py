@@ -18,6 +18,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 @hydra.main(version_base=None, config_path="src/configs", config_name="baseline")
 def main(config):
     world_size = torch.cuda.device_count()
+    mp.set_start_method("spawn", force=True)
     mp.spawn(train, args=(world_size, config), nprocs=world_size, join=True)
 
 
@@ -39,9 +40,12 @@ def train(rank, world_size, config):
     set_random_seed(config.trainer.seed + rank)
 
     OmegaConf.register_new_resolver("devide", lambda x, y: x // y)
-    project_config = OmegaConf.to_container(config)
-    logger = setup_saving_and_logging(config)
-    writer = instantiate(config.writer, logger, project_config)
+    if rank == 0:
+        project_config = OmegaConf.to_container(config)
+        logger = setup_saving_and_logging(config)
+        writer = instantiate(config.writer, logger, project_config)
+    else:
+        logger, writer = None, None
 
     torch.backends.cudnn.benchmark = True
     device = torch.device(f"cuda:{rank}")
