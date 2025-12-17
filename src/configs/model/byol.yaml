@@ -1,0 +1,5 @@
+_target_: src.model.SSL_BYOL
+backbone_arch: "small"
+img_size: 96
+patch_size: 8
+base_momentum: 0.004
