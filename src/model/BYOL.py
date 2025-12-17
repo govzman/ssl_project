@@ -5,10 +5,8 @@ import torch
 import torch.nn as nn
 from mmengine.logging import MessageHub
 from mmengine.utils import digit_version
-from mmpretrain.models.selfsup.base import BaseSelfSupervisor
 from mmpretrain.models.utils import CosineEMA
 from mmpretrain.registry import MODELS
-from mmpretrain.structures import DataSample
 
 if digit_version(torch.__version__) >= digit_version("1.10.0"):
     torch_meshgrid = partial(torch.meshgrid, indexing="ij")
