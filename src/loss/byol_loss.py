@@ -52,13 +52,7 @@ class BYOLLoss(nn.Module):
 
         # Symmetrized loss
         loss = loss_1 + loss_2
-<<<<<<< HEAD
-
-        losses = dict(loss=loss)
-        return losses
-=======
         if return_dict:
             losses = dict(loss=loss)
             return losses
         return loss
->>>>>>> 36a8b1a (SimCLR + byol)

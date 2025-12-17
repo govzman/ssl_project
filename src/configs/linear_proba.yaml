@@ -30,7 +30,7 @@ trainer:
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
-  from_pretrained: "saved/SimCLR bs64 AdamW lr 1e-4 weight_decay 1e-5 num_epochs 5/checkpoint-epoch5.pth"
+  from_pretrained: "saved/SimCLR+ByOL bs 1024 alpha 0.5/checkpoint-epoch80.pth"
   using_head: true
   seed: 1
   amp: true
@@ -42,10 +42,8 @@ datasets:
     split: "test"
 dataloader:
   batch_size: 128
-<<<<<<< HEAD
-  # pin_memory: True
-  # num_workers: 16
-=======
+  pin_memory: True
+  num_workers: 16
 writer:
   run_name: "SimCLR bs128 probe"
->>>>>>> 36a8b1a (SimCLR + byol)
+
