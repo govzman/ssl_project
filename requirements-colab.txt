@@ -1,0 +1,14 @@
+torch==2.5.1
+torchvision==0.20.1
+
+torchmetrics
+numpy==1.26.4
+tqdm
+matplotlib
+pandas
+comet_ml
+hydra-core
+
+black
+isort
+pre-commit

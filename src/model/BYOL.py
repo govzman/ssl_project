@@ -1,26 +1,27 @@
-from typing import Dict, List, Optional, Sequence, Tuple, Union
 from functools import partial
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import torch
 import torch.nn as nn
 from mmengine.logging import MessageHub
+from mmengine.utils import digit_version
 from mmpretrain.models.selfsup.base import BaseSelfSupervisor
 from mmpretrain.models.utils import CosineEMA
 from mmpretrain.registry import MODELS
 from mmpretrain.structures import DataSample
 
-from mmengine.utils import digit_version
-
-if digit_version(torch.__version__) >= digit_version('1.10.0'):
-    torch_meshgrid = partial(torch.meshgrid, indexing='ij')
+if digit_version(torch.__version__) >= digit_version("1.10.0"):
+    torch_meshgrid = partial(torch.meshgrid, indexing="ij")
 else:
     torch_meshgrid = torch.meshgrid
 
+
 def build_2d_sincos_position_embedding(
-        patches_resolution: Union[int, Sequence[int]],
-        embed_dims: int,
-        temperature: Optional[int] = 10000.,
-        cls_token: Optional[bool] = False) -> torch.Tensor:
+    patches_resolution: Union[int, Sequence[int]],
+    embed_dims: int,
+    temperature: Optional[int] = 10000.0,
+    cls_token: Optional[bool] = False,
+) -> torch.Tensor:
     """The function is to build position embedding for model to obtain the
     position information of the image patches.
 
@@ -44,22 +45,16 @@ def build_2d_sincos_position_embedding(
     grid_w = torch.arange(w, dtype=torch.float32)
     grid_h = torch.arange(h, dtype=torch.float32)
     grid_w, grid_h = torch_meshgrid(grid_w, grid_h)
-    assert embed_dims % 4 == 0, \
-        'Embed dimension must be divisible by 4.'
+    assert embed_dims % 4 == 0, "Embed dimension must be divisible by 4."
     pos_dim = embed_dims // 4
 
     omega = torch.arange(pos_dim, dtype=torch.float32) / pos_dim
-    omega = 1. / (temperature**omega)
-    out_w = torch.einsum('m,d->md', [grid_w.flatten(), omega])
-    out_h = torch.einsum('m,d->md', [grid_h.flatten(), omega])
+    omega = 1.0 / (temperature**omega)
+    out_w = torch.einsum("m,d->md", [grid_w.flatten(), omega])
+    out_h = torch.einsum("m,d->md", [grid_h.flatten(), omega])
 
     pos_emb = torch.cat(
-        [
-            torch.sin(out_w),
-            torch.cos(out_w),
-            torch.sin(out_h),
-            torch.cos(out_h)
-        ],
+        [torch.sin(out_w), torch.cos(out_w), torch.sin(out_h), torch.cos(out_h)],
         dim=1,
     )[None, :, :]
 
@@ -104,7 +99,7 @@ class SSL_BYOL(nn.Module):
         steps_per_epoch=1000,
     ) -> None:
         super().__init__()
-
+        norm_cfg = dict(type="BN2d")
         # Online
         self.backbone = MODELS.build(
             dict(
@@ -124,6 +119,7 @@ class SSL_BYOL(nn.Module):
                 out_channels=256,
                 num_layers=2,
                 with_avg_pool=False,
+                norm_cfg=norm_cfg,
             )
         )
 
@@ -136,6 +132,7 @@ class SSL_BYOL(nn.Module):
                 out_channels=256,
                 num_layers=2,
                 with_avg_pool=False,
+                norm_cfg=norm_cfg,
                 # with_bias=False,
                 # with_last_bn=False,
                 # with_last_bias=False,
@@ -154,7 +151,6 @@ class SSL_BYOL(nn.Module):
         self.target_projector = CosineEMA(self.projector, momentum=base_momentum)
 
     def init_pos_embed(self) -> None:
-
         pos_embed = build_2d_sincos_position_embedding(
             patches_resolution=self.backbone.patch_resolution,
             embed_dims=self.backbone.embed_dims,
@@ -162,7 +158,7 @@ class SSL_BYOL(nn.Module):
         )
 
         del self.backbone.pos_embed
-        self.backbone.register_buffer('pos_embed', pos_embed)
+        self.backbone.register_buffer("pos_embed", pos_embed)
 
     def forward(self, images: torch.Tensor, images2: torch.Tensor, **batch):
         """

@@ -1,9 +1,5 @@
 _target_: src.logger.CometMLWriter
-<<<<<<< HEAD
 project_name: "ssl_project"
-=======
-project_name: "pytorch_template"
->>>>>>> 0efca7d (BYOL init commit)
 workspace: "vekshinkir"
 run_name: "testing"
 mode: "online"
