@@ -15,11 +15,11 @@ lr_scheduler:
   max_lr: ${optimizer.lr}
   epochs: ${trainer.n_epochs}
   steps_per_epoch: ${trainer.epoch_len}
-  pct_start: 0.15
+  pct_start: 0.1
 loss_function:
   _target_: src.loss.ContrastiveMaskedLoss
   temperature: 0.5
-  lambda_mim: 0.5
+  lambda_mim: 0.1
 trainer:
   log_step: 50
   n_epochs: 100
@@ -45,9 +45,10 @@ datasets:
 dataloader:
   batch_size: 1024
   num_workers: 16
+  pin_memory: True
 metrics:
   train: []
   inference: []
 writer:
-  run_name: "CMAE_pretrain_lambda0.5_lr1e-4_wd1e-4"
+  run_name: "CMAE_pretrain_lambda0.1"
   loss_names: ["mim_loss", "contrastive_loss", "loss"]
