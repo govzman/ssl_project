@@ -1,6 +1,7 @@
 from itertools import repeat
 
 from hydra.utils import instantiate
+from torch.utils.data.distributed import DistributedSampler
 
 from src.datasets.collate import collate_fn
 from src.utils.init_utils import set_worker_seed
@@ -18,7 +19,7 @@ def inf_loop(dataloader):
         yield from loader
 
 
-def move_batch_transforms_to_device(batch_transforms, device):
+def move_batch_transforms_to_device(batch_transforms, rank):
     """
     Move batch_transforms to device.
 
@@ -40,17 +41,18 @@ def move_batch_transforms_to_device(batch_transforms, device):
         transforms = batch_transforms.get(transform_type)
         if transforms is not None:
             for transform_name in transforms.keys():
-                transforms[transform_name] = transforms[transform_name].to(device)
+                transforms[transform_name] = transforms[transform_name].to(rank)
 
 
-def get_dataloaders(config, device):
+def get_dataloaders(config, world_size, rank):
     """
     Create dataloaders for each of the dataset partitions.
     Also creates instance and batch transforms.
 
     Args:
         config (DictConfig): hydra experiment config.
-        device (str): device to use for batch transforms.
+        world_size (int): num of GPUs.
+        rank (str): rank to use for batch transforms.
     Returns:
         dataloaders (dict[DataLoader]): dict containing dataloader for a
             partition defined by key.
@@ -60,13 +62,13 @@ def get_dataloaders(config, device):
     """
     # transforms or augmentations init
     batch_transforms = instantiate(config.transforms.batch_transforms)
-    move_batch_transforms_to_device(batch_transforms, device)
+    move_batch_transforms_to_device(batch_transforms, rank)
 
     # dataset partitions init
     datasets = instantiate(config.datasets)  # instance transforms are defined inside
 
     # dataloaders init
-    dataloaders = {}
+    dataloaders, datasamplers = {}, {}
     for dataset_partition in config.datasets.keys():
         dataset = datasets[dataset_partition]
 
@@ -75,14 +77,22 @@ def get_dataloaders(config, device):
             f"be larger than the dataset length ({len(dataset)})"
         )
 
+        partition_sampler = DistributedSampler(
+            dataset=dataset,
+            num_replicas=world_size,
+            rank=rank,
+            shuffle=(dataset_partition == "train"),
+        )
+
         partition_dataloader = instantiate(
             config.dataloader,
             dataset=dataset,
             collate_fn=collate_fn,
             drop_last=(dataset_partition == "train"),
-            shuffle=(dataset_partition == "train"),
             worker_init_fn=set_worker_seed,
+            sampler=partition_sampler,
         )
         dataloaders[dataset_partition] = partition_dataloader
+        datasamplers[dataset_partition] = partition_sampler
 
-    return dataloaders, batch_transforms
+    return dataloaders, datasamplers, batch_transforms
