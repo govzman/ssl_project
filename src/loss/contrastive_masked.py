@@ -51,4 +51,8 @@ class ContrastiveMaskedProbingLoss(nn.Module):
 
         cls_loss = F.cross_entropy(logits, labels)
 
-        return {'loss' : contr_mim_loss + cls_loss}
+        return {'contr_mim_loss': contr_mim_loss['loss'],
+                'mim_loss': contr_mim_loss['mim_loss'],
+                'contrastive_loss': contr_mim_loss['contrastive_loss']
+                'loss_cls': cls_loss
+                'loss' : contr_mim_loss['loss'] + cls_loss}
