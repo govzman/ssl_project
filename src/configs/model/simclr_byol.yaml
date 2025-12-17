@@ -1,0 +1,9 @@
+_target_: src.model.SimCLR_Byol
+backbone_arch: "small"
+img_size: 96
+patch_size: 8
+num_classes: 10
+emb_dim: 512
+with_probe: False
+max_epochs: ${trainer.n_epochs}
+steps_per_epoch: ${trainer.epoch_len}

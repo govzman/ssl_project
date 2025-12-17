@@ -2,6 +2,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
+from src.loss.byol_loss import BYOLLoss
+
 
 class ContrastiveLoss(nn.Module):
     def __init__(self, temperature=0.5):
@@ -45,4 +47,34 @@ class ContrastiveProbingLoss(nn.Module):
         return {
             "loss": F.cross_entropy(logits, labels)
             + self.contrastive_loss(embeddings_i, embeddings_j, return_dict=False)
+        }
+
+
+class ContrastiveByolLoss(nn.Module):
+    def __init__(self, temperature=0.5, alpha=0.5):
+        super().__init__()
+
+        self.contrastive = ContrastiveLoss(temperature)
+        self.byol_loss = BYOLLoss()
+        self.alpha = alpha
+
+    def forward(self, return_dict=True, **batch):
+        loss = self.alpha * self.contrastive(**batch, return_dict=False) + (
+            1 - self.alpha
+        ) * self.byol_loss(**batch, return_dict=False)
+        if return_dict:
+            return {"loss": loss}
+        return loss
+
+
+class ContrastiveByolProbingLoss(nn.Module):
+    def __init__(self, temperature=0.5, alpha=0.5):
+        super().__init__()
+
+        self.contrastive_byol_loss = ContrastiveByolLoss(temperature, alpha)
+
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **batch):
+        return {
+            "loss": F.cross_entropy(logits, labels)
+            + self.contrastive_byol_loss(**batch, return_dict=False)
         }
