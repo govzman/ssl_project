@@ -15,12 +15,12 @@ lr_scheduler:
   max_lr: ${optimizer.lr}
   epochs: ${trainer.n_epochs}
   steps_per_epoch: ${trainer.epoch_len}
-  pct_start: 0.001
+  pct_start: 0.01
 loss_function:
   _target_: src.loss.ContrastiveLoss
 trainer:
-  log_step: 50
-  n_epochs: 5
+  log_step: 30
+  n_epochs: 100
   epoch_len: ${devide:${datasets.train.limit},${dataloader.batch_size}}
   device_tensors: ["images", "images2", "labels"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
@@ -40,9 +40,11 @@ datasets:
   test:
     split: "train"
 dataloader:
-  batch_size: 64
+  batch_size: 1024
+  pin_memory: True
+  num_workers: 16
 metrics:
   train: []
   inference: []
 writer:
-  run_name: "SimCLR bs64 AdamW lr 1e-4 weight_decay 1e-5 num_epochs 5"
+  run_name: "SimCLR bs ${dataloader.batch_size}"
