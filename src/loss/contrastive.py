@@ -71,10 +71,17 @@ class ContrastiveByolProbingLoss(nn.Module):
     def __init__(self, temperature=0.5, alpha=0.5):
         super().__init__()
 
-        self.contrastive_byol_loss = ContrastiveByolLoss(temperature, alpha)
+        self.contrastive = ContrastiveLoss(temperature)
+        self.byol_loss = BYOLLoss()
+        self.alpha = alpha
 
     def forward(self, logits: torch.Tensor, labels: torch.Tensor, **batch):
-        return {
-            "loss": F.cross_entropy(logits, labels)
-            + self.contrastive_byol_loss(**batch, return_dict=False)
-        }
+        loss_simclr = self.contrastive(**batch, return_dict=False)
+        loss_byol = self.byol_loss(**batch, return_dict=False)
+        loss_ce = F.cross_entropy(logits, labels)
+        return dict(
+            loss=loss_simclr * self.alpha + (1 - self.alpha) * loss_byol + loss_ce,
+            loss_byol=loss_byol,
+            loss_simclr=loss_simclr,
+            loss_ce=loss_ce,
+        )

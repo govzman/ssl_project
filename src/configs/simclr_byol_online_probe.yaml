@@ -16,12 +16,9 @@ lr_scheduler:
   epochs: ${trainer.n_epochs}
   steps_per_epoch: ${trainer.epoch_len}
   pct_start: 0.01
-# lr_scheduler:
-#   _target_: torch.optim.lr_scheduler.MultiStepLR
-#   milestones: []
 loss_function:
   _target_: src.loss.ContrastiveByolProbingLoss
-  alpha: 0.5 # the weight of contrastive loss
+  alpha: 0.75 # the weight of contrastive loss
 trainer:
   log_step: 50
   n_epochs: 10
@@ -31,7 +28,7 @@ trainer:
   device: auto # device name or "auto"
   override: True # if True, will override the previous run with the same name
   monitor: "max test_Accuracy" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
-  save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
+  save_period: 10 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
   seed: 1
@@ -46,6 +43,6 @@ datasets:
 model:
   with_probe: True
 dataloader:
-  batch_size: 32
+  batch_size: 64
 writer:
-  run_name: "SimCLR-ByOL-probe alpha 0.5 bs32 AdamW lr 10 epochs"
+  run_name: "SimCLR+ByOL-probe bs ${dataloader.batch_size} alpha ${loss_function.alpha}"
