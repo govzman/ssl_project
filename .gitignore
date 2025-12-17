@@ -107,6 +107,7 @@ saved/
 wandb/
 .cometml-runs/
 outputs/
+test.ipynb
 
 # editor, os cache directory
 .vscode/
