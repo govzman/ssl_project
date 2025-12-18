@@ -28,6 +28,7 @@ trainer:
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
-  from_pretrained: "PATH/TO/CHECKPOINT"
+  from_pretrained: "/Users/vekshinkir/ssl_project/saved/testing/checkpoint-epoch50.pth"
   using_head: true
   seed: 1
+  amp: True
