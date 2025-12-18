@@ -105,5 +105,5 @@ class ContrastiveMAE(nn.Module):
                         pred2=reconstr2, target2=target2, mask2=mask2)
 
         if self.with_probe:
-            outputs["logits"] = self.probe(representations_i.detach())
+            outputs["logits"] = self.probe(x1[:, 0, :].detach())
         return outputs
