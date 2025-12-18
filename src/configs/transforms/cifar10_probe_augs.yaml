@@ -1,7 +1,0 @@
-defaults:
-  - instance_transforms: probe_augs_cifar10
-  - _self_
-
-batch_transforms:
-  train: null
-  inference: null

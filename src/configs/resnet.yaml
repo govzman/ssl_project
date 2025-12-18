@@ -2,7 +2,7 @@ defaults:
   - model: resnet
   - writer: cometml
   - metrics: example
-  - datasets: stl10
+  - datasets: cifar10
   - dataloader: example
   - transforms: stl10
   - _self_
