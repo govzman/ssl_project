@@ -36,12 +36,12 @@ trainer:
 datasets:
   train:
     two_augmentations: true
-    # split: "unlabeled"
-    split: "train"
+    split: "unlabeled"
+    # split: "train"
     limit: 100000
   test:
-    # split: "train"
-    split: "test"
+    split: "train"
+    # split: "test"
 dataloader:
   batch_size: 1024
   # pin_memory: True
