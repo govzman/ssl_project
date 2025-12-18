@@ -29,6 +29,7 @@ class ContrastiveMAE(nn.Module):
                 patch_size=patch_size,
                 drop_rate=drop_rate,
                 drop_path_rate=drop_path_rate,
+                mask_ratio=mask_ratio,
                 out_type="raw",
             )
         )
