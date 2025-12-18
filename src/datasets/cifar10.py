@@ -4,7 +4,6 @@ import random
 from typing import List
 
 import torchvision
-from torchvision.transforms import Resize
 from tqdm import tqdm
 
 from src.datasets.base_dataset import BaseDataset
@@ -40,7 +39,6 @@ class CIFAR10(BaseDataset):
         data = torchvision.datasets.CIFAR10(
             data_path,
             train=(split == "train"),
-            target_transform=Resize(96),
             download=True,
         )
         return data
