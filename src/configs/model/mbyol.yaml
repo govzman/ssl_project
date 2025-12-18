@@ -1,0 +1,6 @@
+_target_: src.model.MBYOL
+backbone_arch: "small"
+img_size: 96
+patch_size: 8
+num_classes: 10
+with_probe: False
