@@ -1,4 +1,4 @@
-# PyTorch Template for DL projects
+# SuperSLay team project
 
 <p align="center">
   <a href="#about">About</a> •
