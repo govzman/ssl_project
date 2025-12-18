@@ -30,7 +30,7 @@ trainer:
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
-  from_pretrained: "saved/alpha75_checkpoint-epoch50.pth"
+  from_pretrained: "saved/alpha05_checkpoint-epoch50.pth"
   using_head: true
   seed: 1
   amp: true
@@ -45,4 +45,4 @@ dataloader:
   pin_memory: True
   num_workers: 16
 writer:
-  run_name: "SimCLR-ByOL bs128 offline probe alpha 0.75"
+  run_name: "SimCLR-ByOL bs128 offline probe alpha 0.5"

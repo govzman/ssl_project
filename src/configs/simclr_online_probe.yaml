@@ -8,18 +8,14 @@ defaults:
   - _self_
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 1e-3
-  weight_decay: 1e-4
+  lr: 1e-4
+  weight_decay: 1e-5
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
   max_lr: ${optimizer.lr}
   epochs: ${trainer.n_epochs}
   steps_per_epoch: ${trainer.epoch_len}
-  pct_start: 0.1
-# lr_scheduler:
-#   _target_: torch.optim.lr_scheduler.StepLR
-#   gamma: 0.9
-#   step_size: ${trainer.epoch_len}
+  pct_start: 0.01
 loss_function:
   _target_: src.loss.ContrastiveProbingLoss
 trainer:
@@ -39,5 +35,13 @@ trainer:
 datasets:
   train:
     two_augmentations: true
+    split: "train"
+    limit: 5000
+  test:
+    split: "test"
+model:
+  with_probe: True
 dataloader:
   batch_size: 64
+writer:
+  run_name: "SimCLR-probe bs ${dataloader.batch_size}"
