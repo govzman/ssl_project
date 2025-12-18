@@ -18,7 +18,7 @@ lr_scheduler:
   pct_start: 0.01
 loss_function:
   _target_: src.loss.MBYOLLoss
-  lambda_byol: 0.02
+  lambda_byol: 0.5
 trainer:
   log_step: 30
   n_epochs: 50
@@ -44,7 +44,7 @@ datasets:
     # split: "test"
 dataloader:
   batch_size: 1024
-  # pin_memory: True
+  pin_memory: True
   num_workers: 16
 metrics:
   train: []
